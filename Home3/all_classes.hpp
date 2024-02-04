@@ -124,7 +124,7 @@ public:
 	// геттеры
 	// получить конкретного человека в квартире
 	Human* getHum(int index) {
-		if (index > size_) {
+		if (index - 1 > size_) {
 			throw std::exception("Error: The flat is consist of fewer numbers of human");
 		}
 		Human tmp;
@@ -163,7 +163,7 @@ public:
 
 	// метод удаления человека из квартиры
 	void DeleteHuman(int index) {
-		if (index > size_) {
+		if (index - 1 > size_) {
 			throw std::exception("Error: The flat is consist of fewer numbers of human");
 		}
 		Human* tmp = nullptr;
@@ -199,7 +199,15 @@ private:
 
 class House {
 public:
-	House() :fl_({}), house_numb_(0) {};
+	House() :fl_{}, house_numb_(0) {};
+
+	// геттеры
+	Flat& getFlat(int index) {
+		if (index - 1 > 10) {
+			throw std::exception("Error: The house has only 10 flats");
+		}
+		return fl_[index - 1];
+	}
 
 
 private:

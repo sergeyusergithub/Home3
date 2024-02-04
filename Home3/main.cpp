@@ -6,7 +6,9 @@ int main() {
 
 	Human hm;
 
-	
+	House ho;
+
+
 
 
 
