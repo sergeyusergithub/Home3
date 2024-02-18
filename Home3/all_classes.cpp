@@ -92,6 +92,8 @@ int Human::getAge() {
 
 
 
+Flat::Flat(Flat& flt):Flat(flt.phum_,flt.size_,flt.area_,flt.numb_rooms_,flt.flat_numb_,flt.floor_){ }
+
 Flat::Flat(Human* phm, int size, float area, int n_rooms, int flat, int floor) {
 	if (phm == nullptr && size > 0) {
 		throw (std::exception("Error: pointer is NULL"));
@@ -109,14 +111,33 @@ Flat::Flat(Human* phm, int size, float area, int n_rooms, int flat, int floor) {
 		phum_[i].setGender(phm[i].getGender());
 		phum_[i].setFam_Status(phm[i].getFam_Status());
 		phum_[i].setAge(phm[i].getAge());
+	}
+}
 
+Flat& Flat::operator=(const Flat& other)
+{
+	
+	numb_rooms_ = other.numb_rooms_;
+	area_ = other.area_;
+	flat_numb_ = other.flat_numb_;
+	floor_ = other.floor_;
+	size_ = other.size_;
+	phum_ = new Human[size_];
+	for (int i = 0; i < size_; i++) {
+		phum_[i].setName(other.phum_[i].getName());
+		phum_[i].setSurName(other.phum_[i].getSurName());
+		phum_[i].setGender(other.phum_[i].getGender());
+		phum_[i].setFam_Status(other.phum_[i].getFam_Status());
+		phum_[i].setAge(other.phum_[i].getAge());
 	}
 
+	return *this;
+	// TODO: insert return statement here
 }
 
 //================================================================
 // сеттеры
-void Flat::setHum(Human* phm, int size) {
+void Flat::setHuman(Human* phm, int size) {
 	if (phm == nullptr || size > 0) {
 		throw (std::exception("Error: Pointer is NULL"));
 	}
@@ -157,16 +178,15 @@ void Flat::setFloor(int floor) {
 
 // геттеры
 // получить конкретного человека в квартире
-Human* Flat::getHum(int index) {
+Human Flat::getHuman(int index) {
 	if (index - 1 > size_) {
 		throw std::exception("Error: The flat is consist of fewer numbers of human");
 	}
 	if (!size_) {
 		throw std::exception("Error: The flat is empty.\n");
 	}
-	Human tmp;
-	tmp = phum_[index - 1];
-	return &tmp;
+
+	return phum_[index - 1];
 }
 
 //=================================================================
@@ -201,36 +221,64 @@ int Flat::getFloor() {
 
 //=================================================================
 
-void Flat::AddHuman(Human& hm) {
-	size_ += 1;
-	Human* tmp = new Human[size_];
-	for (int i = 0; i < size_ - 1; i++) {
-		tmp[i] = phum_[i];
+void Flat::addHuman(const Human& hm) {
+	if (numb_rooms_ != 0 && flat_numb_ != 0 && flat_numb_ != 0 && floor_ != 0) {
+		size_ += 1;
+		Human* tmp = new Human[size_];
+		for (int i = 0; i < size_ - 1; i++) {
+			tmp[i] = phum_[i];
+		}
+		tmp[size_ - 1] = hm;
+		delete[] phum_;
+		phum_ = tmp;
+		return;
 	}
-	tmp[size_ - 1] = hm;
-	phum_ = tmp;
-	tmp = nullptr;
+	throw - 1;
+	
 }
 
 //=================================================================
 
-void Flat::DeleteHuman(int index) {
+void Flat::deleteHuman(int index) {
 	if (index - 1 > size_) {
 		throw std::exception("Error: The flat is consist of fewer numbers of human");
 	}
-	Human* tmp = nullptr;
+	 
 	int indx = 0;
 	size_ -= 1;
-	tmp = new Human[size_];
+	Human*  tmp = new Human[size_];
 	for (int i = 0; i < size_ + 1; i++) {
-		if (i != index) {
+		if (i != index - 1) {
 			tmp[indx] = phum_[i];
 			indx += 1;
 		}
 	}
-
+	delete[] phum_;
 	phum_ = tmp;
-	tmp = nullptr;
+}
+
+
+
+//===========================================================================
+void Flat::addFlat(Human* phm, int size, float area, int n_rooms, int flat, int floor)
+{
+	if (phm == nullptr && size > 0) {
+		throw (std::exception("Error: pointer is NULL"));
+	}
+
+	numb_rooms_ = n_rooms;
+	area_ = area;
+	flat_numb_ = flat;
+	floor_ = floor;
+	size_ = size;
+	phum_ = new Human[size_];
+	for (int i = 0; i < size_; i++) {
+		phum_[i].setName(phm[i].getName());
+		phum_[i].setSurName(phm[i].getSurName());
+		phum_[i].setGender(phm[i].getGender());
+		phum_[i].setFam_Status(phm[i].getFam_Status());
+		phum_[i].setAge(phm[i].getAge());
+	}
 }
 
 //=================================================================
@@ -245,8 +293,7 @@ Flat::~Flat() {
 //=================================  House  ===================================
 //=============================================================================
 
-House::House(int flat_numbers, int num = 1) :fl_{}, house_numb_{ num }, free_flat_{}, size_{ flat_numbers } {
-	free_flat_ = size_;
+House::House(int flat_numbers, int num) :fl_{}, house_numb_{ num }, full_flat_{ 0 }, size_{ flat_numbers } {
 	fl_ = new Flat[size_]{};
 }
 
@@ -254,11 +301,17 @@ House::House(int flat_numbers, int num = 1) :fl_{}, house_numb_{ num }, free_fla
 House::~House() {
 	delete[] fl_;
 	size_ = 0;
-	free_flat_ = 0;
+	full_flat_ = 0;
 	house_numb_ = 0;
 }
 
 
+
+House::House(const House& other) :fl_{}, house_numb_{}, full_flat_{}, size_{}
+{
+	fl_ = new Flat[other.size_]{};
+	size_ = other.size_;
+}
 
 // геттеры и сеттеры полей класса
 int House::House_numb()const {
@@ -274,17 +327,52 @@ int House::size() const {
 }
 
 void House::size(int size) {
-	size_ = size;
+	if (size_ == 0) {
+		fl_ = new Flat[size]{};
+		size_ = size;
+	}
+	else {
+		throw std::exception("Error: House has a flat alrady.\n");
+	}
+	
+}
+
+Flat House::get_Flat(int index)
+{
+	return fl_[index - 1];
 }
 
 
 int House::Free_flat()const {
-	return free_flat_;
+	return size_ - full_flat_;
 }
 
 // добавление заполненой квартиры в дом
 void House::add_flat(const Flat& flt) {
+	fl_[full_flat_] = flt;
+	full_flat_ += 1;
+}
 
+
+//====================================================================
+
+void House::add_human(const Human& hmn, int index)
+{
+	if (0 <= index && index < size_) {
+		fl_[index].addHuman(hmn);
+		return;
+	}
+	throw - 1;
+}
+
+//=====================================================================
+void House::delete_human(int flat_number, int index)
+{
+	for (int i = 0; i < size_; ++i) {
+		if (fl_[i].getFlatN() == flat_number) {
+			fl_[i].deleteHuman(index);
+		}
+	}
 }
 
 

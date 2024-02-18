@@ -3,7 +3,7 @@
 #ifndef ALL_CLASSES_HPP
 #define ALL_CLASSES_HPP
 
-#include <string>
+#include <iostream>
 
 ////////	Human	////////////////////////////
 
@@ -57,16 +57,16 @@ public:
 	Flat() :phum_{}, size_{}, area_{}, numb_rooms_{}, flat_numb_{}, floor_{} {};
 
 	// конструктор копирования
-	Flat(Flat& flt): phum_(flt.phum_),size_(flt.size_),
-				area_(flt.area_),numb_rooms_(flt.numb_rooms_),
-				flat_numb_(flt.flat_numb_),
-				floor_(flt.floor_){}
+	Flat(Flat& flt); 
 
 	// конструктор с параметрами
 	Flat(Human* phm, int size, float area, int n_rooms, int flat, int floor);
 
+	// оператор присваивания копированием
+	Flat& operator=(const Flat& other);
+
 	// сеттеры
-	void setHum(Human* phm, int size);
+	void setHuman(Human* phm, int size);
 
 	void setArea(float area);
 
@@ -78,7 +78,7 @@ public:
 
 	// геттеры
 	// получить конкретного человека в квартире
-	Human* getHum(int index);
+	Human getHuman(int index);
 
 	int getSize();
 
@@ -91,10 +91,14 @@ public:
 	int getFloor(); 
 
 	// метод добавления человека в квартиру
-	void AddHuman(Human& hm);
+	// если квартира существует, т.е. заполнены поля все кроме phum_ и size_
+	void addHuman(const Human& hm);
 
 	// метод удаления человека из квартиры
-	void DeleteHuman(int index);
+	void deleteHuman(int index);
+
+	// добавление информации о квартире, в том числе и список жильцов квартиры
+	void addFlat(Human* hm,int size, float area, int n_rooms, int flat, int floor);
 
 	// деструктор
 	~Flat();
@@ -114,13 +118,16 @@ private:
 class House {
 public:
 	// конструктор по умолчанию
-	House() :fl_{}, house_numb_{}, free_flat_{}, size_{} {}
+	House() :fl_{}, house_numb_{}, full_flat_{}, size_{} {}
 
 	// конструктор с параметром задающий количество квартир в доме и номер дома (по умолчанию номер дома 1)
-	House(int flat_numbers,int num = 1) :fl_{}, house_numb_{num}, free_flat_{}, size_{ flat_numbers } {	}
+	House(int flat_numbers, int num);
+
+	// конструктор копирования, копирует количество квартир
+	House(const House& other);
 
 	// деструктор
-	~House() {}
+	~House();
 
 
 
@@ -133,19 +140,27 @@ public:
 
 	void size(int size);
 
+	Flat get_Flat(int index);
+
 
 	int Free_flat()const;
 
 	// добавление заполненой квартиры в дом
 	void add_flat(const Flat& flt);
 
+	// добавление человека в квартиру, по индексу квартиры, расположению в массиве
+	void add_human(const Human& hmn, int index);
+
+	// удаление человека из квартиры номер: flat_number 
+	void delete_human(int flat_number, int index);
+
 
 private:
 	Flat* fl_;				// квартиры в доме
 	int house_numb_;		// номер дома
-	int free_flat_;			// количество пустых квартир
+	int full_flat_;			// количество заполненых квартир
 	int size_;				// количество квартир в доме
-
+	
 };
 
 
